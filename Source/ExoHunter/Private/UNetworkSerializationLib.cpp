@@ -184,20 +184,20 @@ void UNetworkSerializationLib::WriteStringAt(UPARAM(ref)TArray<uint8>& byteArray
 
 // --- VECTOR & ROTATOR ---
 
-void UNetworkSerializationLib::WriteVector(UPARAM(ref)TArray<uint8>& Bytes, const FVector& Value)
+void UNetworkSerializationLib::WriteVector(UPARAM(ref)TArray<uint8>& byteArray, const FVector& Value)
 {
 	// Conversion Double (UE5) -> Float (Réseau)
-	WriteFloat(Bytes, (float)Value.X);
-	WriteFloat(Bytes, (float)Value.Y);
-	WriteFloat(Bytes, (float)Value.Z);
+	WriteFloat(byteArray, (float)Value.X);
+	WriteFloat(byteArray, (float)Value.Y);
+	WriteFloat(byteArray, (float)Value.Z);
 }
 
-void UNetworkSerializationLib::WriteRotator(UPARAM(ref)TArray<uint8>& Bytes, const FRotator& Value)
+void UNetworkSerializationLib::WriteRotator(UPARAM(ref)TArray<uint8>& byteArray, const FRotator& Value)
 {
 	// Conversion Double (UE5) -> Float (Réseau)
-	WriteFloat(Bytes, (float)Value.Pitch);
-	WriteFloat(Bytes, (float)Value.Yaw);
-	WriteFloat(Bytes, (float)Value.Roll);
+	WriteFloat(byteArray, (float)Value.Pitch);
+	WriteFloat(byteArray, (float)Value.Yaw);
+	WriteFloat(byteArray, (float)Value.Roll);
 }
 
 
@@ -266,20 +266,20 @@ FString UNetworkSerializationLib::ReadString(const TArray<uint8>& byteArray, int
 	return Result;
 }
 
-FVector UNetworkSerializationLib::ReadVector(const TArray<uint8>& Bytes, int32& Offset)
+FVector UNetworkSerializationLib::ReadVector(const TArray<uint8>& byteArray, int32& Offset)
 {
 	// Reconstitution du vecteur (Float -> Double implicite)
-	float X = ReadFloat(Bytes, Offset);
-	float Y = ReadFloat(Bytes, Offset);
-	float Z = ReadFloat(Bytes, Offset);
+	float X = ReadFloat(byteArray, Offset);
+	float Y = ReadFloat(byteArray, Offset);
+	float Z = ReadFloat(byteArray, Offset);
 	return FVector(X, Y, Z);
 }
 
-FRotator UNetworkSerializationLib::ReadRotator(const TArray<uint8>& Bytes, int32& Offset)
+FRotator UNetworkSerializationLib::ReadRotator(const TArray<uint8>& byteArray, int32& Offset)
 {
-	float P = ReadFloat(Bytes, Offset);
-	float Y = ReadFloat(Bytes, Offset);
-	float R = ReadFloat(Bytes, Offset);
+	float P = ReadFloat(byteArray, Offset);
+	float Y = ReadFloat(byteArray, Offset);
+	float R = ReadFloat(byteArray, Offset);
 	return FRotator(P, Y, R);
 }
 
@@ -288,7 +288,8 @@ bool UNetworkSerializationLib::HasBytesLeft(const TArray<uint8>& byteArray, int3
 	return byteArray.IsValidIndex(Offset) && (byteArray.Num() - Offset) >= SizeRequired;
 }
 
-void UNetworkSerializationLib::WriteStructViaReflection(TArray<uint8>& Bytes, const UScriptStruct* StructDefinition, const void* StructData)
+// Pour tous éléments d'une structure -> Serialize automatique sa propriété (VarType)
+void UNetworkSerializationLib::WriteStructViaReflection(TArray<uint8>& byteArray, const UScriptStruct* StructDefinition, const void* StructData)
 {
 	// On itère sur chaque propriété de la struct (Int, Float, String, etc.)
 	for (TFieldIterator<FProperty> It(StructDefinition); It; ++It)
@@ -300,7 +301,7 @@ void UNetworkSerializationLib::WriteStructViaReflection(TArray<uint8>& Bytes, co
 		const void* ValuePtr = Property->ContainerPtrToValuePtr<void>(StructData);
 
 		// On délègue l'écriture
-		WriteProperty(Bytes, Property, ValuePtr);
+		WriteProperty(byteArray, Property, ValuePtr);
 	}
 }
 
@@ -405,6 +406,126 @@ void UNetworkSerializationLib::WriteProperty(TArray<uint8>& Bytes, FProperty* Pr
 			const void* ElementPtr = Helper.GetRawPtr(i);
 			// On réutilise la même logique pour chaque élément !
 			WriteProperty(Bytes, ArrayProp->Inner, ElementPtr);
+		}
+	}
+}
+
+void UNetworkSerializationLib::ReadStructViaReflection(const TArray<uint8>& Bytes, int32& Offset, const UScriptStruct* StructDefinition, void* StructData)
+{
+	for (TFieldIterator<FProperty> It(StructDefinition); It; ++It)
+	{
+		FProperty* Property = *It;
+		void* ValuePtr = Property->ContainerPtrToValuePtr<void>(StructData);
+
+		ReadProperty(Bytes, Offset, Property, ValuePtr);
+	}
+}
+
+void UNetworkSerializationLib::ReadProperty(const TArray<uint8>&Bytes, int32 & Offset, FProperty * Property, void* ValuePtr)
+{
+	// --- 1. PRIMITIVES (Int, Float, Bool, Byte) ---
+
+	// Uint8 (Byte)
+	if (FByteProperty* ByteProp = CastField<FByteProperty>(Property))
+	{
+		uint8 Val = ReadUint8(Bytes, Offset);
+		ByteProp->SetPropertyValue(ValuePtr, Val);
+	}
+	// Int8
+	else if (FInt8Property* Int8Prop = CastField<FInt8Property>(Property))
+	{
+		// On lit un int32 (car ReadInt8 renvoie int32 pour les BP) et on cast en int8
+		int32 Val = ReadInt8(Bytes, Offset);
+		Int8Prop->SetPropertyValue(ValuePtr, (int8)Val);
+	}
+	// Int16
+	else if (FInt16Property* Int16Prop = CastField<FInt16Property>(Property))
+	{
+		int32 Val = ReadInt16(Bytes, Offset);
+		Int16Prop->SetPropertyValue(ValuePtr, (int16)Val);
+	}
+	// UInt16
+	else if (FUInt16Property* UInt16Prop = CastField<FUInt16Property>(Property))
+	{
+		int32 Val = ReadUint16(Bytes, Offset);
+		UInt16Prop->SetPropertyValue(ValuePtr, (uint16)Val);
+	}
+	// Int32
+	else if (FIntProperty* IntProp = CastField<FIntProperty>(Property))
+	{
+		int32 Val = ReadInt32(Bytes, Offset);
+		IntProp->SetPropertyValue(ValuePtr, Val);
+	}
+	// UInt32
+	else if (FUInt32Property* UInt32Prop = CastField<FUInt32Property>(Property))
+	{
+		int32 Val = ReadUint32(Bytes, Offset);
+		UInt32Prop->SetPropertyValue(ValuePtr, (uint32)Val);
+	}
+
+	// Float
+	else if (FFloatProperty* FloatProp = CastField<FFloatProperty>(Property))
+	{
+		float Val = ReadFloat(Bytes, Offset);
+		FloatProp->SetPropertyValue(ValuePtr, Val);
+	}
+
+	// Bool
+	else if (FBoolProperty* BoolProp = CastField<FBoolProperty>(Property))
+	{
+		// On lit l'octet, si != 0 c'est true
+		uint8 Val = ReadUint8(Bytes, Offset);
+		BoolProp->SetPropertyValue(ValuePtr, Val != 0);
+	}
+
+	// --- 2. STRING ---
+
+	else if (FStrProperty* StrProp = CastField<FStrProperty>(Property))
+	{
+		FString Val = ReadString(Bytes, Offset);
+		StrProp->SetPropertyValue(ValuePtr, Val);
+	}
+
+	// --- 3. STRUCTS IMBRIQUÉES (Récursion !) ---
+
+	else if (FStructProperty* StructProp = CastField<FStructProperty>(Property))
+	{
+		// Optimisation Vector
+		if (StructProp->Struct->GetFName() == NAME_Vector)
+		{
+			FVector Val = ReadVector(Bytes, Offset);
+			// On cast le pointeur void* directement en FVector* pour l'assigner
+			*(FVector*)ValuePtr = Val;
+		}
+		// Optimisation Rotator
+		else if (StructProp->Struct->GetFName() == NAME_Rotator)
+		{
+			FRotator Val = ReadRotator(Bytes, Offset);
+			*(FRotator*)ValuePtr = Val;
+		}
+		else
+		{
+			// Sinon récursion standard vers la fonction qui itère sur les champs
+			ReadStructViaReflection(Bytes, Offset, StructProp->Struct, ValuePtr);
+		}
+	}
+
+	// --- ARRAY ---
+	else if (FArrayProperty* ArrayProp = CastField<FArrayProperty>(Property))
+	{
+		FScriptArrayHelper Helper(ArrayProp, ValuePtr);
+
+		// 1. Lire la taille
+		int32 ArraySize = ReadInt32(Bytes, Offset);
+
+		// 2. Redimensionner le tableau pour accueillir les données
+		Helper.Resize(ArraySize);
+
+		// 3. Remplir chaque élément
+		for (int32 i = 0; i < ArraySize; ++i)
+		{
+			// Appel récursif sur la propriété interne (Inner) pour l'élément i
+			ReadProperty(Bytes, Offset, ArrayProp->Inner, Helper.GetRawPtr(i));
 		}
 	}
 }

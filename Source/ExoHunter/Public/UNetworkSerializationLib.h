@@ -128,13 +128,27 @@ public:
 	// Helper pour vérifier la taille dispo
 	static bool HasBytesLeft(const TArray<uint8>& byteArray, int32 Offset, int32 SizeRequired);
 
-	static void WriteStructViaReflection(TArray<uint8>& Bytes, const UScriptStruct* StructDefinition, const void* StructData);
-
+	// Helper pour centraliser les Writes
 	template <typename T>
 	static void WriteStruct(TArray<uint8>& Bytes, const T& StructObj)
 	{
 		WriteStructViaReflection(Bytes, T::StaticStruct(), &StructObj);
 	}
 
+	static void WriteStructViaReflection(TArray<uint8>& Bytes, const UScriptStruct* StructDefinition, const void* StructData);
+
 	static void WriteProperty(TArray<uint8>& Bytes, FProperty* Property, const void* ValuePtr);
+
+	template <typename T>
+	static void ReadStruct(const TArray<uint8>& Bytes, int32& Offset, T& OutStruct)
+	{
+		// On appelle la magie de la réflexion pour remplir 'OutStruct'
+		ReadStructViaReflection(Bytes, Offset, T::StaticStruct(), &OutStruct);
+	}
+
+	// La méthode interne qui fait le travail sale
+	static void ReadStructViaReflection(const TArray<uint8>& Bytes, int32& Offset, const UScriptStruct* StructDefinition, void* StructData);
+
+	// Le Switch Case géant pour la lecture
+	static void ReadProperty(const TArray<uint8>& Bytes, int32& Offset, FProperty* Property, void* ValuePtr);
 };
