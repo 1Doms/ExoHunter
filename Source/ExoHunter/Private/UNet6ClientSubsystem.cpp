@@ -87,6 +87,15 @@ void UNet6ClientSubsystem::DisconnectFromServer()
 	UE_LOG(LogExoClient, Log, TEXT("Client déconnecté et nettoyé."));
 }
 
+void UNet6ClientSubsystem::SendToServer(const FInstancedStruct& PacketData, bool bReliable)
+{
+	if (!ServerPeer) return; 
+
+	ENetPacket* ENetPacket = FPacketBuilder::BuildPacket(PacketData, bReliable);
+	if (ENetPacket)
+		InternalSendPacket(ENetPacket);
+}
+
 void UNet6ClientSubsystem::Tick(float DeltaTime)
 {
 	// Sécurité (même si IsAllowedToTick le gère)
@@ -100,21 +109,18 @@ void UNet6ClientSubsystem::Tick(float DeltaTime)
 		switch (Event.type)
 		{
 		case ENET_EVENT_TYPE_CONNECT:
-		{
-				UE_LOG(LogExoClient, Log, TEXT("Host Service Connected")); //
-    
-				// 1. ENet est connecté physiquement. Maintenant, on se présente au jeu !
-				FClientConnectPacket ConnectPacket;
-				ConnectPacket.playerName = TEXT("ExoPlayer_01");
-				// 2. On envoie le paquet de manière fiable (TCP-like) car c'est vital
-				SendToServer(ConnectPacket, true);
-				break;
+		{	
+			BP_OnConnectEvent();
+			UE_LOG(LogExoClient, Log, TEXT("Host Service Connected"));
+			break;
 		}
 
 		case ENET_EVENT_TYPE_DISCONNECT:
 		{
+			BP_OnDisconnectEvent();
 			UE_LOG(LogExoClient, Warning, TEXT("Déconnecté par le serveur."));
 			ServerPeer = nullptr; // Le pointeur n'est plus valide
+				
 			break;
 		}
 		case ENET_EVENT_TYPE_RECEIVE:
@@ -130,9 +136,8 @@ void UNet6ClientSubsystem::Tick(float DeltaTime)
 void UNet6ClientSubsystem::HandleReceivePacket(const ENetPacket* Packet)
 {
 	if (!Packet) return;
-
+	BP_OnReceivePacketEvent();
 	ExoHunterOpcodeRouter::RouteServerMessage(GetWorld(), Packet);
-
 	// Nettoyage
 	enet_packet_destroy(const_cast<ENetPacket*>(Packet));
 }

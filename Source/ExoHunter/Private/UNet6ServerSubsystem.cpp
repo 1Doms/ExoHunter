@@ -41,6 +41,7 @@ bool UNet6ServerSubsystem::StartServer(int32 Port, EExoIPVersion IPVType)
 	}
 
 	UE_LOG(LogExoServer, Log, TEXT("Serveur d�marr� avec succ�s ! En attente de clients..."));
+	BP_OnServerStartEvent();
 	return true;
 }
 
@@ -68,9 +69,26 @@ void UNet6ServerSubsystem::StopServer()
 	enet_host_destroy(ServerHost);
 	ServerHost = nullptr;
 
-	ConnectedPlayers.Empty();
-
+	ConnectedClients.Empty();
 	UE_LOG(LogExoServer, Log, TEXT("Serveur �teint et m�moire lib�r�e."));
+	
+	BP_OnServerStopEvent();
+}
+
+void UNet6ServerSubsystem::SendToPlayer(int32 PlayerID, const FInstancedStruct& PacketData, bool bReliable)
+{
+	if (!ServerHost) return;
+		
+	ENetPacket* ENetPacket = FPacketBuilder::BuildPacket(PacketData, bReliable);
+	InternalSendToPlayer(PlayerID, ENetPacket);
+}
+
+void UNet6ServerSubsystem::SendToAllPlayers(const FInstancedStruct& PacketData, bool bReliable)
+{
+	if (!ServerHost) return;
+
+	ENetPacket* ENetPacket = FPacketBuilder::BuildPacket(PacketData, bReliable);
+	InternalSendToAll(ENetPacket);
 }
 
 void UNet6ServerSubsystem::Tick(float DeltaTime)
@@ -118,19 +136,19 @@ void UNet6ServerSubsystem::Deinitialize()
 
 void UNet6ServerSubsystem::HandleClientConnect(ENetPeer* Peer)
 {
-	uint32 NewID = NextPlayerID++;
+	uint32 NewID = NextClientID++;
 
 	Peer->data = (void*)(uintptr_t)NewID;
 
-	FConnectedPlayer NewPlayer;
-	NewPlayer.Peer = Peer;
-	NewPlayer.InternalID = NewID;
-	NewPlayer.Status = EExoPlayerStatus::Connecting;
+	FConnectedClient NewClient;
+	NewClient.Peer = Peer;
+	NewClient.InternalID = NewID;
+	NewClient.Status = EExoPlayerStatus::Connecting;
 
 	// Add to map
-	ConnectedPlayers.Add(NewID, NewPlayer);
-
+	ConnectedClients.Add(NewID, NewClient);
 	UE_LOG(LogExoServer, Log, TEXT("Nouveau Client Connect� ! ID ENet : %u"), Peer->connectID);
+	BP_OnClientConnectEvent(NewClient.InternalID, NewClient.Status);
 }
 
 void UNet6ServerSubsystem::HandleClientDisconnect(ENetPeer* Peer)
@@ -140,11 +158,11 @@ void UNet6ServerSubsystem::HandleClientDisconnect(ENetPeer* Peer)
 	UE_LOG(LogExoServer, Log, TEXT("Client D�connect� ID: %u"), PlayerID);
 
 	// On retire Player de la map
-	if (ConnectedPlayers.Contains(PlayerID))
+	if (ConnectedClients.Contains(PlayerID))
 	{
-		ConnectedPlayers.Remove(PlayerID);
+		ConnectedClients.Remove(PlayerID);
 	}
-
+	BP_OnClientDisconnectEvent(PlayerID);
 	Peer->data = nullptr;
 }
 
@@ -152,9 +170,9 @@ void UNet6ServerSubsystem::HandleReceivePacket(ENetPeer* Peer, const ENetPacket*
 {
 	// Sécurité de base
 	if (!Peer || !Packet) return;
-
 	// 1. On récupère l'ID du joueur qui a envoyé le message
 	uint32 PlayerID = (uint32)(uintptr_t)Peer->data;
+	BP_OnReceivePacketEvent(PlayerID);
 	
 	// 3. On passe cette fenêtre au routeur
 	ExoHunterOpcodeRouter::RouteClientMessage(GetWorld(), PlayerID, Packet);
@@ -170,7 +188,7 @@ void UNet6ServerSubsystem::InternalSendToPlayer(uint32 PlayerID, ENetPacket* Pac
 	if (!PacketToSend || !ServerHost) return;
 
 	// 1. On cherche le joueur
-	FConnectedPlayer* Player = ConnectedPlayers.Find(PlayerID);
+	FConnectedClient* Player = ConnectedClients.Find(PlayerID);
 
 	// 2. Si le joueur existe et a un Peer valide, on envoie
 	if (Player && Player->Peer)

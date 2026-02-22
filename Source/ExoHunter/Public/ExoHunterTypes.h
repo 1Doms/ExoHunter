@@ -12,19 +12,24 @@ typedef _ENetPeer ENetPeer;
 UENUM(BlueprintType)
 enum class EExoHunterOpcode : uint8
 {
+	None = 0  					UMETA(DisplayName = "None"),
+	
 	//Client to Server
-	C_Connect = 0         UMETA(DisplayName = "Client Connect"),
-	C_Disconnect          UMETA(DisplayName = "Client Disconnect"),
-	C_Input               UMETA(DisplayName = "Client Input"),
+	C_Connect = 1	    		 UMETA(DisplayName = "Client Connect"),
+	C_Disconnect       			 UMETA(DisplayName = "Client Disconnect"),
+	C_Input            			 UMETA(DisplayName = "Client Input"),
+	C_Test						UMETA(DisplayName = "Client Test"),
 
 	//Server to client
-	S_PlayerJoin = 128    UMETA(DisplayName = "[SV] Player / Join Success"),
-	S_SpawnActor          UMETA(DisplayName = "[SV] Spawn Network Actor"),
-	S_PlayerLeave		  UMETA(DisplayName = "[SV] Player Leave"),
-	S_DestroyActor        UMETA(DisplayName = "[SV] Destroy Network Actor"),
-	S_GameEvent           UMETA(DisplayName = "[SV] Gameplay Event"),
-	S_Snapshot            UMETA(DisplayName = "[SV] World Snapshot"),
-	S_MatchState          UMETA(DisplayName = "[SV] Match State Update")
+	S_ClientConnecting = 128	 UMETA(DisplayName = "Client Connecting"),
+	S_PlayerJoin				 UMETA(DisplayName = "[SV] Player / Join Success"),
+	S_SpawnActor				 UMETA(DisplayName = "[SV] Spawn Network Actor"),
+	S_PlayerLeave				 UMETA(DisplayName = "[SV] Player Leave"),
+	S_DestroyActor				 UMETA(DisplayName = "[SV] Destroy Network Actor"),
+	S_GameEvent					 UMETA(DisplayName = "[SV] Gameplay Event"),
+	S_Snapshot					 UMETA(DisplayName = "[SV] World Snapshot"),
+	S_MatchState				 UMETA(DisplayName = "[SV] Match State Update"),
+	S_Test						UMETA(DisplayName = "[SV] Test Update")
 };
 
 UENUM(BlueprintType)
@@ -59,11 +64,12 @@ enum class EExoIPVersion : uint8
 UENUM(BlueprintType)
 enum class EExoClassID : uint8
 {
-	
+	ExoHunter		UMETA(DisplayName = "ExoHunter"),
+	Damned 			UMETA(DisplayName = "Damned")
 };
 
-USTRUCT()
-struct FConnectedPlayer
+USTRUCT(BlueprintType)
+struct FConnectedClient
 {
 	GENERATED_BODY()
 
@@ -76,4 +82,13 @@ struct FConnectedPlayer
 
 	// TODO FUTUR : Ajouter le Timestamp du dernier paquet reçu (pour détecter les Timeouts nous-mêmes si besoin)
 	// double LastPacketTime = 0.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FServerInfo
+{
+	GENERATED_BODY()
+	
+	uint8 MaxPeerCount = 0;
+	TMap<uint32, FConnectedClient> ConnectedClient;
 };

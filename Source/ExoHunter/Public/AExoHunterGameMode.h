@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "AExoHunterGameMode.generated.h"
 
+class UNet6ServerSubsystem;
+
 UCLASS()
 class EXOHUNTER_API AExoHunterGameMode : public AGameModeBase
 {
@@ -14,10 +16,10 @@ class EXOHUNTER_API AExoHunterGameMode : public AGameModeBase
 public:
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
-	void BP_OnPlayerValidated(int32 PlayerID, const FClientConnectPacket& Packet);
+	void BP_OnPlayerValidated(int32 PlayerID, const FClientConnectStruct& Struct);
 	
-	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Server")
-	void BroadcastPlayerSpawned(const FServerSpawnActorPacket& SpawnPacket);
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnPacketReceive(int32 PlayerID, const FClientConnectStruct& Struct);
 	
 protected:
 	UNet6ServerSubsystem* GetServerSubsystem() const;

@@ -19,7 +19,7 @@ typedef _ENetPeer ENetPeer;
 struct _ENetPacket;
 typedef _ENetPacket ENetPacket;
 
-UCLASS()
+UCLASS(Abstract, Blueprintable)
 class EXOHUNTER_API UNet6ClientSubsystem : public UNet6BaseSubsystem
 {
 	GENERATED_BODY()
@@ -32,16 +32,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Client")
 	void DisconnectFromServer();
-
-	template<typename TPacketStruct>
-	void SendToServer(const TPacketStruct& Packet, bool bReliable = true)
-	{
-		if (!ServerPeer) return; // Sécurité : on n'envoie rien si on n'est pas connecté
-
-		// 1. On construit le paquet
-		ENetPacket* ENetPacket = FPacketBuilder::BuildPacket(Packet, bReliable);
-		InternalSendPacket(ENetPacket);
-	}
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Client")
+	void BP_OnConnectEvent();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Client")
+	void BP_OnDisconnectEvent();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnReceivePacketEvent();
+	
+	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Client", meta = (BaseStruct = "ExoClientPacket"))
+	void SendToServer(const FInstancedStruct& PacketData, bool bReliable = true);
 
 protected:
 	virtual void Tick(float DeltaTime) override;

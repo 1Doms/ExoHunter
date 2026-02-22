@@ -19,7 +19,7 @@ struct _ENetHost;
 typedef _ENetHost ENetHost;
 
 
-UCLASS()
+UCLASS(Abstract, Blueprintable)
 class EXOHUNTER_API UNet6ServerSubsystem : public UNet6BaseSubsystem
 {
 	GENERATED_BODY()
@@ -33,25 +33,28 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Server")
 	void StopServer();
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnServerStartEvent();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnServerStopEvent();
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnClientConnectEvent(int32 ClientID, EExoPlayerStatus Status);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnClientDisconnectEvent(int32 ClientID);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnReceivePacketEvent(int32 ClientID);
+	
 	// --- ENVOIE AU JOUEUR CONCERNE
-	template<typename TPacketStruct>
-	void SendToPlayer(uint32 PlayerID, const TPacketStruct& Packet, bool bReliable = true)
-	{
-		if (!ServerHost) return;
-		
-		ENetPacket* ENetPacket = FPacketBuilder::BuildPacket(Packet, bReliable);
-		InternalSendToPlayer(PlayerID, ENetPacket);
-	}
+	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Server", meta = (BaseStruct = "ExoServerPacket"))
+	void SendToPlayer(int32 PlayerID, const FInstancedStruct& PacketData, bool bReliable = true);
 
 	// --- ENVOI A TOUT LE MONDE ---
-	template<typename TPacketStruct>
-	void SendToAllPlayers(const TPacketStruct& Packet, bool bReliable = true)
-	{
-		if (!ServerHost) return;
-
-		ENetPacket* ENetPacket = FPacketBuilder::BuildPacket(Packet, bReliable);
-		InternalSendToAll(ENetPacket);
-	}
+	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Server", meta = (BaseStruct = "ExoServerPacket"))
+	void SendToAllPlayers(const FInstancedStruct& PacketData, bool bReliable = true);
 
 protected:
 	virtual void Tick(float DeltaTime) override;
@@ -61,8 +64,8 @@ protected:
 private:
 	// Le socket d'�coute
 	ENetHost* ServerHost = nullptr;
-	TMap<uint32, FConnectedPlayer> ConnectedPlayers;
-	uint32 NextPlayerID = 1;
+	TMap<uint32, FConnectedClient> ConnectedClients;
+	uint32 NextClientID = 1;
 
 	// --- Handlers Internes ---
 	void HandleClientConnect(ENetPeer* Peer);

@@ -123,7 +123,8 @@ public:
 	template <typename T>
 	static void ReadStruct(TArrayView<const uint8> Bytes, int32& Offset, T& OutStruct)
 	{
-		ReadStructViaReflection(Bytes, Offset, T::StaticStruct(), &OutStruct);
+		UScriptStruct* StructPtr = T::StaticStruct(); // On récupère T Stuct le type de Struct
+		ReadStructViaReflection(Bytes, Offset, StructPtr, static_cast<void*>(&OutStruct));
 	}
 
 	// La méthode interne lit chaque élément d'une struct

@@ -1,69 +1,122 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DiffResults.h"
 #include "ExoHunterTypes.h"
 #include "UNetworkSerializationLib.h"
+#include "InstancedStruct.h"
 #include "PacketBuilder.generated.h"
+
+USTRUCT(BlueprintType)
+struct FExoPacketBase
+{
+    GENERATED_BODY()
+    EExoHunterOpcode PacketOpcode = EExoHunterOpcode::None;
+    
+    FExoPacketBase() = default; // Requis par Unreal
+    FExoPacketBase(EExoHunterOpcode InOpcode) : PacketOpcode(InOpcode) {} // Le raccourci
+};
+
+USTRUCT(BlueprintType)
+struct FExoClientPacket : public FExoPacketBase { GENERATED_BODY() }; // Pour les paquets Client -> Serveur
+
+USTRUCT(BlueprintType)
+struct FExoServerPacket : public FExoPacketBase { GENERATED_BODY() }; // Pour les paquets Serveur -> Client
 
 // --- CLIENT PACKETS ---
 
 USTRUCT(BlueprintType)
-struct FClientConnectPacket
+struct FClientConnectStruct : public FExoClientPacket
 {
     GENERATED_BODY()
-
-    static constexpr EExoHunterOpcode Opcode = EExoHunterOpcode::C_Connect;
-
-    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Packets")
-    FString playerName;
+    FClientConnectStruct() : FExoClientPacket(EExoHunterOpcode::C_Connect) {}
+    
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
+    FString PlayerName;
 };
 
-USTRUCT()
-struct FClientDisconnectPacket
+USTRUCT(BlueprintType)
+struct FClientDisconnectStruct : public FExoClientPacket
 {
     GENERATED_BODY()
+    FClientDisconnectStruct() : FExoClientPacket(EExoHunterOpcode::C_Disconnect) {}
 
-    static constexpr EExoHunterOpcode Opcode = EExoHunterOpcode::C_Disconnect;
+    UPROPERTY(BlueprintReadWrite)
+    uint8 NetID;
+};
 
-    UPROPERTY()
-    uint8 playerID;
+USTRUCT(BlueprintType)
+struct FClientTest : public FExoClientPacket
+{
+    GENERATED_BODY()
+    FClientTest() : FExoClientPacket(EExoHunterOpcode::C_Test) {}
+};
+
+USTRUCT(BlueprintType)
+struct FClientInputStruct : public FExoClientPacket
+{
+    GENERATED_BODY()
+    FClientInputStruct() : FExoClientPacket(EExoHunterOpcode::C_Input) {}
+    
+    uint32 NetID;
 };
 
 // --- SERVER PACKETS ---
 
 USTRUCT(BlueprintType)
-struct FServerPlayerJoin
+struct FServerClientConnectingStruct : public FExoServerPacket
 {
     GENERATED_BODY()
+    FServerClientConnectingStruct() : FExoServerPacket(EExoHunterOpcode::S_ClientConnecting) {}
     
-    static constexpr EExoHunterOpcode Opcode = EExoHunterOpcode::S_PlayerJoin;
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
+    int32 NetID;
     
-    UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Packets")
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
+    uint8 PlayerStatus;
+};
+
+USTRUCT(BlueprintType)
+struct FServerPlayerJoinStruct : public FExoServerPacket
+{
+    GENERATED_BODY()
+    FServerPlayerJoinStruct() : FExoServerPacket(EExoHunterOpcode::S_PlayerJoin) {}
+    
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
     FString playerName;
 };
 
 USTRUCT(BlueprintType)
-struct FServerSpawnActorPacket
+struct FServerSpawnActorStruct : public FExoServerPacket
 {
     GENERATED_BODY()
-
-    static constexpr EExoHunterOpcode Opcode = EExoHunterOpcode::S_SpawnActor;
+    FServerSpawnActorStruct() : FExoServerPacket(EExoHunterOpcode::S_SpawnActor) {}
 
     // L'ID réseau unique de l'entité qui vient d'apparaître
-    UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Packets")
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
     int32 NetID;
     
     // BP_ExoHunterCharacter
-    UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Packets")
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
     uint8 ClassID;
     
     // Sa position de départ
-    UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Packets")
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
     FVector Location;
 
     // Sa rotation de départ
-    UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Packets")
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
     FRotator Rotation;
+};
+
+USTRUCT(BlueprintType)
+struct FServerTest : public FExoServerPacket
+{
+    GENERATED_BODY()
+    FServerTest() : FExoServerPacket(EExoHunterOpcode::S_Test) {}
+    
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
+    int32 NetID;
 };
 
 struct _ENetPacket;
@@ -72,17 +125,7 @@ typedef _ENetPacket ENetPacket;
 class FPacketBuilder
 {
 public:
-    template<typename TPacketStruct>
-    static ENetPacket* BuildPacket(const TPacketStruct& Packet, bool bReliable)
-    {
-        TArray<uint8> ByteArray;
-        ByteArray.Reserve(sizeof(TPacketStruct) + 1);
-        UNetworkSerializationLib::WriteUint8(ByteArray, (uint8)TPacketStruct::Opcode);
-        UNetworkSerializationLib::WriteStruct(ByteArray, Packet);
-
-        // On appelle la fonction de création qui est définie dans le .cpp
-        return CreateENetPacketInternal(ByteArray.GetData(), ByteArray.Num(), bReliable);
-    }
+    static ENetPacket* BuildPacket(const FInstancedStruct& PacketData, bool bReliable);
 
 private:
     // Le header sait que ENetPacket existe, donc il accepte le pointeur en retour
