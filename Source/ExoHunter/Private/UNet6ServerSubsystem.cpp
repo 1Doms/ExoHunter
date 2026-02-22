@@ -1,42 +1,46 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "UNet6ServerSubsystem.h"
+#include "enet6/enet.h"
+#include "ExoHunterOpcodeRouter.h"
+#include "ExoHunterNetUtils.h"
+
+DEFINE_LOG_CATEGORY(LogExoServer);
 
 bool UNet6ServerSubsystem::IsAllowedToTick() const
 {
-    // On ne tick QUE si le serveur est réellement démarré (Host valide)
+    // On ne tick QUE si le serveur est rï¿½ellement dï¿½marrï¿½ (Host valide)
     return ServerHost != nullptr;
 }
 
-bool UNet6ServerSubsystem::StartServer(int32 Port)
+bool UNet6ServerSubsystem::StartServer(int32 Port, EExoIPVersion IPVType)
 {
-	// 1. On nettoie au cas où
+	// On nettoie au cas oï¿½
 	StopServer();
 
-	UE_LOG(LogExoServer, Log, TEXT("Démarrage du serveur sur le port %d..."), Port);
+	UE_LOG(LogExoServer, Log, TEXT("Dï¿½marrage du serveur sur le port %d..."), Port);
+	
+	ENetAddressType TargetENetType = static_cast<ENetAddressType>(ExoHunterNetUtils::GetENetAddressType(IPVType));
 
-	// 2. Configuration de l'adresse d'écoute
 	ENetAddress Address;
-	// ENET_HOST_ANY signifie "Ecoute sur toutes les cartes réseaux (Wifi, Ethernet, Localhost)"
-	Address.type = ENET_ADDRESS_TYPE_ANY;
+	enet_address_build_any(&Address, TargetENetType);
 	Address.port = Port;
-
-	// 3. Création du Host Serveur (Spécifique ENet6)
+	
+	// Crï¿½ation du Host Serveur (Spï¿½cifique ENet6)
 	// Arg 1 : Type d'adresse (ANY pour accepter IPv4 et IPv6 si possible)
 	// Arg 2 : L'adresse de bind
 	// Arg 3 : Nombre max de clients (32 ici)
 	// Arg 4 : Nombre de channels (2)
-	// Arg 5/6 : Bandwidth (0 = illimité)
-	ServerHost = enet_host_create(ENET_ADDRESS_TYPE_ANY, &Address, 32, 2, 0, 0);
+	// Arg 5/6 : Bandwidth (0 = illimitï¿½)
+	ServerHost = enet_host_create(Address.type, &Address, 32, 2, 0, 0);
 
 	if (!ServerHost)
 	{
-		UE_LOG(LogExoServer, Error, TEXT("Echec critique : Impossible de créer le Host ENet Serveur (Port occupé ?)."));
+		UE_LOG(LogExoServer, Error, TEXT("Echec critique : Impossible de crï¿½er le Host ENet Serveur (Port occupï¿½ ?)."));
 		return false;
 	}
 
-	UE_LOG(LogExoServer, Log, TEXT("Serveur démarré avec succès ! En attente de clients..."));
+	UE_LOG(LogExoServer, Log, TEXT("Serveur dï¿½marrï¿½ avec succï¿½s ! En attente de clients..."));
 	return true;
 }
 
@@ -44,18 +48,17 @@ void UNet6ServerSubsystem::StopServer()
 {
 	if (!ServerHost) return;
 
-	UE_LOG(LogExoServer, Log, TEXT("Arrêt du serveur... Déconnexion des joueurs en cours."));
+	UE_LOG(LogExoServer, Log, TEXT("Arrï¿½t du serveur... Dï¿½connexion des joueurs en cours."));
 
-	// 1. On parcourt TOUS les slots de connexion (peers) alloués par ENet
+	// On parcourt TOUS les slots de connexion (peers) allouï¿½s par ENet
 	for (size_t i = 0; i < ServerHost->peerCount; ++i)
 	{
 		ENetPeer* CurrentPeer = &ServerHost->peers[i];
 
-		// Si ce peer est actif (Connecté ou en train de se connecter)
+		// Si ce peer est actif (Connectï¿½ ou en train de se connecter)
 		if (CurrentPeer->state != ENET_PEER_STATE_DISCONNECTED)
 		{
-			// On envoie le signal de déconnexion douce.
-			// Le '0' est le code de raison. (Tu pourrais mettre 404 ou ce que tu veux).
+			// On envoie le signal de dï¿½connexion douce.
 			enet_peer_disconnect(CurrentPeer, 0);
 		}
 	}
@@ -67,7 +70,7 @@ void UNet6ServerSubsystem::StopServer()
 
 	ConnectedPlayers.Empty();
 
-	UE_LOG(LogExoServer, Log, TEXT("Serveur éteint et mémoire libérée."));
+	UE_LOG(LogExoServer, Log, TEXT("Serveur ï¿½teint et mï¿½moire libï¿½rï¿½e."));
 }
 
 void UNet6ServerSubsystem::Tick(float DeltaTime)
@@ -76,7 +79,7 @@ void UNet6ServerSubsystem::Tick(float DeltaTime)
 
 	ENetEvent Event;
 
-	// Boucle de traitement des événements (Non-bloquante : timeout = 0)
+	// Boucle de traitement des ï¿½vï¿½nements (Non-bloquante : timeout = 0)
 	while (enet_host_service(ServerHost, &Event, 0) > 0)
 	{
 		switch (Event.type)
@@ -89,7 +92,7 @@ void UNet6ServerSubsystem::Tick(float DeltaTime)
 
 		case ENET_EVENT_TYPE_RECEIVE:
 		{
-			// Note : Event.packet sera détruit automatiquement par notre helper
+			// Note : Event.packet sera dï¿½truit automatiquement par notre helper
 			HandleReceivePacket(Event.peer, Event.packet);
 			break;
 		}
@@ -101,6 +104,16 @@ void UNet6ServerSubsystem::Tick(float DeltaTime)
 		}
 		}
 	}
+}
+
+void UNet6ServerSubsystem::Deinitialize()
+{
+	// On coupe le serveur proprement quand on ferme le jeu ou l'Ã©diteur
+	StopServer();
+	
+	UE_LOG(LogExoServer, Log, TEXT("Subsystem dÃ©sactivÃ© : Ports libÃ©rÃ©s."));
+	
+	Super::Deinitialize();
 }
 
 void UNet6ServerSubsystem::HandleClientConnect(ENetPeer* Peer)
@@ -117,26 +130,14 @@ void UNet6ServerSubsystem::HandleClientConnect(ENetPeer* Peer)
 	// Add to map
 	ConnectedPlayers.Add(NewID, NewPlayer);
 
-	UE_LOG(LogExoServer, Log, TEXT("Nouveau Client Connecté ! ID ENet : %u"), Peer->connectID);
-
-	if (OnNetworkEvent.IsBound())
-	{
-		TArray<uint8> EmptyPayload; // Pas de données pour une connexion
-		OnNetworkEvent.Broadcast(EExoNetEventType::Connect, NewID, EmptyPayload);
-	}
+	UE_LOG(LogExoServer, Log, TEXT("Nouveau Client Connectï¿½ ! ID ENet : %u"), Peer->connectID);
 }
 
 void UNet6ServerSubsystem::HandleClientDisconnect(ENetPeer* Peer)
 {
 	uint32 PlayerID = (uint32)(uintptr_t)Peer->data;
 
-	UE_LOG(LogExoServer, Log, TEXT("Client Déconnecté ID: %u"), PlayerID);
-
-	if (OnNetworkEvent.IsBound())
-	{
-		TArray<uint8> EmptyPayload;
-		OnNetworkEvent.Broadcast(EExoNetEventType::Disconnect, PlayerID, EmptyPayload);
-	}
+	UE_LOG(LogExoServer, Log, TEXT("Client Dï¿½connectï¿½ ID: %u"), PlayerID);
 
 	// On retire Player de la map
 	if (ConnectedPlayers.Contains(PlayerID))
@@ -149,17 +150,47 @@ void UNet6ServerSubsystem::HandleClientDisconnect(ENetPeer* Peer)
 
 void UNet6ServerSubsystem::HandleReceivePacket(ENetPeer* Peer, const ENetPacket* Packet)
 {
+	// SÃ©curitÃ© de base
+	if (!Peer || !Packet) return;
+
+	// 1. On rÃ©cupÃ¨re l'ID du joueur qui a envoyÃ© le message
 	uint32 PlayerID = (uint32)(uintptr_t)Peer->data;
+	
+	// 3. On passe cette fenÃªtre au routeur
+	ExoHunterOpcodeRouter::RouteClientMessage(GetWorld(), PlayerID, Packet);
 
-	// Copie des données et est détruit automatiquement grâce au helper
-	TArray<uint8> Data = UNet6BaseSubsystem::ConsumePacket((ENetPacket*)Packet);
+	// 4. Le routeur a terminÃ©, on peut nettoyer la mÃ©moire d'ENet.
+	// (Le const_cast est nÃ©cessaire car on met "const ENetPacket*" dans ton .h, 
+	// mais ENet a besoin d'un pointeur modifiable pour le dÃ©truire).
+	enet_packet_destroy(const_cast<ENetPacket*>(Packet));
+}
 
-	if (Data.Num() > 0)
+void UNet6ServerSubsystem::InternalSendToPlayer(uint32 PlayerID, ENetPacket* PacketToSend)
+{
+	if (!PacketToSend || !ServerHost) return;
+
+	// 1. On cherche le joueur
+	FConnectedPlayer* Player = ConnectedPlayers.Find(PlayerID);
+
+	// 2. Si le joueur existe et a un Peer valide, on envoie
+	if (Player && Player->Peer)
 	{
-		// BROADCAST : On envoie le paquet au GameMode
-		if (OnNetworkEvent.IsBound())
-		{
-			OnNetworkEvent.Broadcast(EExoNetEventType::DataPacket, PlayerID, Data);
-		}
+		enet_peer_send(Player->Peer, 0, PacketToSend);
 	}
+	else
+	{
+		// 3. ðŸš¨ LE JOUEUR N'EXISTE PLUS ! 
+		// ENet ne gÃ©rera pas ce paquet, on doit le dÃ©truire nous-mÃªmes pour Ã©viter la fuite
+		UE_LOG(LogExoServer, Warning, TEXT("Ã‰chec d'envoi : Le joueur %u est introuvable."), PlayerID);
+		enet_packet_destroy(PacketToSend);
+	}
+}
+
+void UNet6ServerSubsystem::InternalSendToAll(ENetPacket* PacketToSend)
+{
+	if (!PacketToSend || !ServerHost) return;
+
+	// Broadcast est ultra optimisÃ© : il envoie le mÃªme pointeur Ã  tout le monde
+	// et ENet le dÃ©truira automatiquement quand le dernier client l'aura reÃ§u.
+	enet_host_broadcast(ServerHost, 0, PacketToSend);
 }

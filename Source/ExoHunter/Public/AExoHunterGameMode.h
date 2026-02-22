@@ -12,19 +12,13 @@ class EXOHUNTER_API AExoHunterGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	virtual void BeginPlay() override;
-
-	UFUNCTION()
-	void HandleUniversalEvent(EExoNetEventType Type, int32 PlayerId, const TArray<uint8>& Payload);
-
-	// --- BLUEPRINT EVENT ---
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork")
-	void OnExoPlayerConnected(int32 PlayerId);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork")
-	void OnExoPlayerDisconnected(int32 PlayerId);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork")
-	void OnExoPacketReceived(int32 PlayerId, const TArray<uint8>& Data);
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
+	void BP_OnPlayerValidated(int32 PlayerID, const FClientConnectPacket& Packet);
+	
+	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Server")
+	void BroadcastPlayerSpawned(const FServerSpawnActorPacket& SpawnPacket);
+	
+protected:
+	UNet6ServerSubsystem* GetServerSubsystem() const;
 };

@@ -1,10 +1,10 @@
 #include "UNetworkSerializationLib.h"
 
 // ==============================================================================
-//                                HELPERS PRIVÉS
+//                                HELPERS PRIVï¿½S
 // ==============================================================================
 
-// Helper générique pour ajouter une donnée à la FIN du tableau
+// Helper gï¿½nï¿½rique pour ajouter une donnï¿½e ï¿½ la FIN du tableau
 template <typename T>
 void WriteAppend(TArray<uint8>& byteArray, const T& Value)
 {
@@ -12,7 +12,7 @@ void WriteAppend(TArray<uint8>& byteArray, const T& Value)
 	FMemory::Memcpy(byteArray.GetData() + NewIndex, &Value, sizeof(T)); // byteArray.GetData() + NewIndex == byteArray[NewIndex]
 }
 
-// Helper générique pour écrire une donnée à un OFFSET précis (écrase ou agrandit)
+// Helper gï¿½nï¿½rique pour ï¿½crire une donnï¿½e ï¿½ un OFFSET prï¿½cis (ï¿½crase ou agrandit)
 template <typename T>
 void WriteAtOffset(TArray<uint8>& byteArray, int32 Offset, const T& Value)
 {
@@ -25,25 +25,23 @@ void WriteAtOffset(TArray<uint8>& byteArray, int32 Offset, const T& Value)
 	FMemory::Memcpy(byteArray.GetData() + Offset, &Value, sizeof(T));
 }
 
-// Helper générique pour lire une donnée à un OFFSET (et avancer l'offset)
+// Helper gï¿½nï¿½rique pour lire une donnï¿½e ï¿½ un OFFSET (et avancer l'offset)
 template <typename T>
-T ReadAtOffset(const TArray<uint8>& byteArray, int32& Offset)
+	T ReadAtOffset(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	// Sécurité : On vérifie s'il reste assez d'octets
-	if (!UNetworkSerializationLib::HasBytesLeft(byteArray, Offset, sizeof(T)))
+	if (!UNetworkSerializationLib::HasBytesLeft(ByteArrayView, Offset, sizeof(T)))
 	{
-		return T(); // Retourne une valeur par défaut (0) en cas d'erreur
+		return T(); 
 	}
-
 	T Value;
-	FMemory::Memcpy(&Value, byteArray.GetData() + Offset, sizeof(T));
+	FMemory::Memcpy(&Value, ByteArrayView.GetData() + Offset, sizeof(T));
 	Offset += sizeof(T);
 	return Value;
 }
 
 
 // ==============================================================================
-//                                   ÉCRITURE (WRITE)
+//                                   ï¿½CRITURE (WRITE)
 // ==============================================================================
 
 // --- 8 BITS ---
@@ -59,7 +57,7 @@ void UNetworkSerializationLib::WriteInt8At(UPARAM(ref)TArray<uint8>& byteArray, 
 	{
 		byteArray[Offset] = (int8)Value;
 	}
-	else if (byteArray.Num() == Offset) // Cas où on écrit juste à la fin
+	else if (byteArray.Num() == Offset) // Cas oï¿½ on ï¿½crit juste ï¿½ la fin
 	{
 		byteArray.Add((int8)Value);
 	}
@@ -150,10 +148,10 @@ void UNetworkSerializationLib::WriteString(UPARAM(ref)TArray<uint8>& byteArray, 
 	FTCHARToUTF8 Convert(*Value);
 	int32 Len = Convert.Length();
 
-	// 1. Écrire la taille
+	// 1. ï¿½crire la taille
 	WriteInt32(byteArray, Len);
 
-	// 2. Écrire le contenu
+	// 2. ï¿½crire le contenu
 	if (Len > 0)
 	{
 		int32 NewIndex = byteArray.AddUninitialized(Len);
@@ -166,14 +164,14 @@ void UNetworkSerializationLib::WriteStringAt(UPARAM(ref)TArray<uint8>& byteArray
 	FTCHARToUTF8 Convert(*Value);
 	int32 Len = Convert.Length();
 
-	// 1. Écrire la taille à l'offset
+	// 1. ï¿½crire la taille ï¿½ l'offset
 	WriteInt32At(byteArray, Offset, Len);
 	Offset += 4; // On avance de 4 octets (taille du int32)
 
-	// 2. Écrire le contenu
+	// 2. ï¿½crire le contenu
 	if (Len > 0)
 	{
-		// On s'assure qu'il y a assez de place pour la chaîne
+		// On s'assure qu'il y a assez de place pour la chaï¿½ne
 		if (byteArray.Num() < Offset + Len)
 		{
 			byteArray.SetNum(Offset + Len);
@@ -186,7 +184,7 @@ void UNetworkSerializationLib::WriteStringAt(UPARAM(ref)TArray<uint8>& byteArray
 
 void UNetworkSerializationLib::WriteVector(UPARAM(ref)TArray<uint8>& byteArray, const FVector& Value)
 {
-	// Conversion Double (UE5) -> Float (Réseau)
+	// Conversion Double (UE5) -> Float (Rï¿½seau)
 	WriteFloat(byteArray, (float)Value.X);
 	WriteFloat(byteArray, (float)Value.Y);
 	WriteFloat(byteArray, (float)Value.Z);
@@ -194,7 +192,7 @@ void UNetworkSerializationLib::WriteVector(UPARAM(ref)TArray<uint8>& byteArray, 
 
 void UNetworkSerializationLib::WriteRotator(UPARAM(ref)TArray<uint8>& byteArray, const FRotator& Value)
 {
-	// Conversion Double (UE5) -> Float (Réseau)
+	// Conversion Double (UE5) -> Float (Rï¿½seau)
 	WriteFloat(byteArray, (float)Value.Pitch);
 	WriteFloat(byteArray, (float)Value.Yaw);
 	WriteFloat(byteArray, (float)Value.Roll);
@@ -205,102 +203,102 @@ void UNetworkSerializationLib::WriteRotator(UPARAM(ref)TArray<uint8>& byteArray,
 //                                   LECTURE (READ)
 // ==============================================================================
 
-int32 UNetworkSerializationLib::ReadInt8(const TArray<uint8>& byteArray, int32& Offset)
+int32 UNetworkSerializationLib::ReadInt8(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	if (!HasBytesLeft(byteArray, Offset, 1)) return 0;
+	if (!HasBytesLeft(ByteArrayView, Offset, 1)) return 0;
 
-	int8 Val = (int8)byteArray[Offset];
+	int8 Val = (int8)ByteArrayView[Offset];
 	Offset++;
 	return (int32)Val;
 }
 
-uint8 UNetworkSerializationLib::ReadUint8(const TArray<uint8>& byteArray, int32& Offset)
+uint8 UNetworkSerializationLib::ReadUint8(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	if (!HasBytesLeft(byteArray, Offset, 1)) return 0;
+	if (!HasBytesLeft(ByteArrayView, Offset, 1)) return 0;
 
-	uint8 Val = byteArray[Offset];
+	uint8 Val = ByteArrayView[Offset];
 	Offset++;
 	return Val;
 }
 
-int32 UNetworkSerializationLib::ReadInt16(const TArray<uint8>& byteArray, int32& Offset)
+int32 UNetworkSerializationLib::ReadInt16(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	return (int32)ReadAtOffset<int16>(byteArray, Offset);
+	return (int32)ReadAtOffset<int16>(ByteArrayView, Offset);
 }
 
-int32 UNetworkSerializationLib::ReadUint16(const TArray<uint8>& byteArray, int32& Offset)
+int32 UNetworkSerializationLib::ReadUint16(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	return (int32)ReadAtOffset<uint16>(byteArray, Offset);
+	return (int32)ReadAtOffset<uint16>(ByteArrayView, Offset);
 }
 
-int32 UNetworkSerializationLib::ReadInt32(const TArray<uint8>& byteArray, int32& Offset)
+int32 UNetworkSerializationLib::ReadInt32(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	return ReadAtOffset<int32>(byteArray, Offset);
+	return ReadAtOffset<int32>(ByteArrayView, Offset);
 }
 
-int32 UNetworkSerializationLib::ReadUint32(const TArray<uint8>& byteArray, int32& Offset)
+int32 UNetworkSerializationLib::ReadUint32(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	return (int32)ReadAtOffset<uint32>(byteArray, Offset);
+	return (int32)ReadAtOffset<uint32>(ByteArrayView, Offset);
 }
 
-float UNetworkSerializationLib::ReadFloat(const TArray<uint8>& byteArray, int32& Offset)
+float UNetworkSerializationLib::ReadFloat(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	return ReadAtOffset<float>(byteArray, Offset);
+	return ReadAtOffset<float>(ByteArrayView, Offset);
 }
 
-FString UNetworkSerializationLib::ReadString(const TArray<uint8>& byteArray, int32& Offset)
+FString UNetworkSerializationLib::ReadString(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
 	// 1. Lire la taille
-	int32 Len = ReadInt32(byteArray, Offset);
+	int32 Len = ReadInt32(ByteArrayView, Offset);
 
-	// Sécurité
-	if (Len <= 0 || !HasBytesLeft(byteArray, Offset, Len))
+	// Sï¿½curitï¿½
+	if (Len <= 0 || !HasBytesLeft(ByteArrayView, Offset, Len))
 	{
 		return FString();
 	}
 
 	// 2. Lire le contenu et convertir UTF8 -> TCHAR
-	FString Result(Len, (const UTF8CHAR*)(byteArray.GetData() + Offset));
+	FString Result(Len, (const UTF8CHAR*)(ByteArrayView.GetData() + Offset));
 	Offset += Len;
 
 	return Result;
 }
 
-FVector UNetworkSerializationLib::ReadVector(const TArray<uint8>& byteArray, int32& Offset)
+FVector UNetworkSerializationLib::ReadVector(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
 	// Reconstitution du vecteur (Float -> Double implicite)
-	float X = ReadFloat(byteArray, Offset);
-	float Y = ReadFloat(byteArray, Offset);
-	float Z = ReadFloat(byteArray, Offset);
+	float X = ReadFloat(ByteArrayView, Offset);
+	float Y = ReadFloat(ByteArrayView, Offset);
+	float Z = ReadFloat(ByteArrayView, Offset);
 	return FVector(X, Y, Z);
 }
 
-FRotator UNetworkSerializationLib::ReadRotator(const TArray<uint8>& byteArray, int32& Offset)
+FRotator UNetworkSerializationLib::ReadRotator(TArrayView<const uint8> ByteArrayView, int32& Offset)
 {
-	float P = ReadFloat(byteArray, Offset);
-	float Y = ReadFloat(byteArray, Offset);
-	float R = ReadFloat(byteArray, Offset);
+	float P = ReadFloat(ByteArrayView, Offset);
+	float Y = ReadFloat(ByteArrayView, Offset);
+	float R = ReadFloat(ByteArrayView, Offset);
 	return FRotator(P, Y, R);
 }
 
-bool UNetworkSerializationLib::HasBytesLeft(const TArray<uint8>& byteArray, int32 Offset, int32 SizeRequired)
+bool UNetworkSerializationLib::HasBytesLeft(TArrayView<const uint8> Bytes, int32 Offset, int32 SizeRequired)
 {
-	return byteArray.IsValidIndex(Offset) && (byteArray.Num() - Offset) >= SizeRequired;
+	return Bytes.IsValidIndex(Offset) && (Bytes.Num() - Offset) >= SizeRequired;
 }
 
-// Pour tous éléments d'une structure -> Serialize automatique sa propriété (VarType)
+// Pour tous ï¿½lï¿½ments d'une structure -> Serialize automatique sa propriï¿½tï¿½ (VarType)
 void UNetworkSerializationLib::WriteStructViaReflection(TArray<uint8>& byteArray, const UScriptStruct* StructDefinition, const void* StructData)
 {
-	// On itère sur chaque propriété de la struct (Int, Float, String, etc.)
+	// On itï¿½re sur chaque propriï¿½tï¿½ de la struct (Int, Float, String, etc.)
 	for (TFieldIterator<FProperty> It(StructDefinition); It; ++It)
 	{
 		FProperty* Property = *It;
 
-		// On récupère le pointeur vers la valeur réelle en mémoire
+		// On rï¿½cupï¿½re le pointeur vers la valeur rï¿½elle en mï¿½moire
 		// ContainerPtrToValuePtr fait le calcul d'adresse (Offset) pour nous
 		const void* ValuePtr = Property->ContainerPtrToValuePtr<void>(StructData);
 
-		// On délègue l'écriture
+		// On dï¿½lï¿½gue l'ï¿½criture
 		WriteProperty(byteArray, Property, ValuePtr);
 	}
 }
@@ -343,7 +341,7 @@ void UNetworkSerializationLib::WriteProperty(TArray<uint8>& Bytes, FProperty* Pr
 	else if (FUInt32Property* UInt32Prop = CastField<FUInt32Property>(Property))
 	{
 		uint32 Val = UInt32Prop->GetPropertyValue(ValuePtr);
-		WriteUint32(Bytes, (int32)Val); // Attention au cast si > 2 milliards (faut gérer le signe)
+		WriteUint32(Bytes, (int32)Val); // Attention au cast si > 2 milliards (faut gï¿½rer le signe)
 	}
 
 	// Float
@@ -357,7 +355,7 @@ void UNetworkSerializationLib::WriteProperty(TArray<uint8>& Bytes, FProperty* Pr
 	else if (FBoolProperty* BoolProp = CastField<FBoolProperty>(Property))
 	{
 		bool Val = BoolProp->GetPropertyValue(ValuePtr);
-		WriteUint8(Bytes, Val ? 1 : 0); // Bool sérialisé comme 1 byte
+		WriteUint8(Bytes, Val ? 1 : 0); // Bool sï¿½rialisï¿½ comme 1 byte
 	}
 
 	// --- 2. STRING ---
@@ -368,11 +366,11 @@ void UNetworkSerializationLib::WriteProperty(TArray<uint8>& Bytes, FProperty* Pr
 		WriteString(Bytes, Val);
 	}
 
-	// --- 3. STRUCTS IMBRIQUÉES (Récursion !) ---
+	// --- 3. STRUCTS IMBRIQUï¿½ES (Rï¿½cursion !) ---
 
 	else if (FStructProperty* StructProp = CastField<FStructProperty>(Property))
 	{
-		// Optimisation : Si c'est un Vector/Rotator, on utilise tes fonctions optimisées
+		// Optimisation : Si c'est un Vector/Rotator, on utilise tes fonctions optimisï¿½es
 		if (StructProp->Struct->GetFName() == NAME_Vector)
 		{
 			FVector* Vec = (FVector*)ValuePtr;
@@ -385,7 +383,7 @@ void UNetworkSerializationLib::WriteProperty(TArray<uint8>& Bytes, FProperty* Pr
 		}
 		else
 		{
-			// Sinon récursion standard
+			// Sinon rï¿½cursion standard
 			WriteStructViaReflection(Bytes, StructProp->Struct, ValuePtr);
 		}
 	}
@@ -394,79 +392,79 @@ void UNetworkSerializationLib::WriteProperty(TArray<uint8>& Bytes, FProperty* Pr
 
 	else if (FArrayProperty* ArrayProp = CastField<FArrayProperty>(Property))
 	{
-		// Helper pour manipuler les TArray génériques
+		// Helper pour manipuler les TArray gï¿½nï¿½riques
 		FScriptArrayHelper Helper(ArrayProp, ValuePtr);
 
-		// On écrit la taille du tableau (int32 ou uint16 selon tes besoins)
+		// On ï¿½crit la taille du tableau (int32 ou uint16 selon tes besoins)
 		WriteInt32(Bytes, Helper.Num());
 
-		// On itère sur chaque élément du tableau
+		// On itï¿½re sur chaque ï¿½lï¿½ment du tableau
 		for (int32 i = 0; i < Helper.Num(); ++i)
 		{
 			const void* ElementPtr = Helper.GetRawPtr(i);
-			// On réutilise la même logique pour chaque élément !
+			// On rï¿½utilise la mï¿½me logique pour chaque ï¿½lï¿½ment !
 			WriteProperty(Bytes, ArrayProp->Inner, ElementPtr);
 		}
 	}
 }
 
-void UNetworkSerializationLib::ReadStructViaReflection(const TArray<uint8>& Bytes, int32& Offset, const UScriptStruct* StructDefinition, void* StructData)
+void UNetworkSerializationLib::ReadStructViaReflection(TArrayView<const uint8> ByteArrayView, int32& Offset, const UScriptStruct* StructDefinition, void* StructData)
 {
 	for (TFieldIterator<FProperty> It(StructDefinition); It; ++It)
 	{
 		FProperty* Property = *It;
 		void* ValuePtr = Property->ContainerPtrToValuePtr<void>(StructData);
 
-		ReadProperty(Bytes, Offset, Property, ValuePtr);
+		ReadProperty(ByteArrayView, Offset, Property, ValuePtr);
 	}
 }
 
-void UNetworkSerializationLib::ReadProperty(const TArray<uint8>&Bytes, int32 & Offset, FProperty * Property, void* ValuePtr)
+void UNetworkSerializationLib::ReadProperty(TArrayView<const uint8> ByteArrayView, int32 & Offset, FProperty * Property, void* ValuePtr)
 {
 	// --- 1. PRIMITIVES (Int, Float, Bool, Byte) ---
 
 	// Uint8 (Byte)
 	if (FByteProperty* ByteProp = CastField<FByteProperty>(Property))
 	{
-		uint8 Val = ReadUint8(Bytes, Offset);
+		uint8 Val = ReadUint8(ByteArrayView, Offset);
 		ByteProp->SetPropertyValue(ValuePtr, Val);
 	}
 	// Int8
 	else if (FInt8Property* Int8Prop = CastField<FInt8Property>(Property))
 	{
 		// On lit un int32 (car ReadInt8 renvoie int32 pour les BP) et on cast en int8
-		int32 Val = ReadInt8(Bytes, Offset);
+		int32 Val = ReadInt8(ByteArrayView, Offset);
 		Int8Prop->SetPropertyValue(ValuePtr, (int8)Val);
 	}
 	// Int16
 	else if (FInt16Property* Int16Prop = CastField<FInt16Property>(Property))
 	{
-		int32 Val = ReadInt16(Bytes, Offset);
+		int32 Val = ReadInt16(ByteArrayView, Offset);
 		Int16Prop->SetPropertyValue(ValuePtr, (int16)Val);
 	}
 	// UInt16
 	else if (FUInt16Property* UInt16Prop = CastField<FUInt16Property>(Property))
 	{
-		int32 Val = ReadUint16(Bytes, Offset);
+		int32 Val = ReadUint16(ByteArrayView, Offset);
 		UInt16Prop->SetPropertyValue(ValuePtr, (uint16)Val);
 	}
 	// Int32
 	else if (FIntProperty* IntProp = CastField<FIntProperty>(Property))
 	{
-		int32 Val = ReadInt32(Bytes, Offset);
+		int32 Val = ReadInt32(ByteArrayView, Offset);
 		IntProp->SetPropertyValue(ValuePtr, Val);
 	}
 	// UInt32
 	else if (FUInt32Property* UInt32Prop = CastField<FUInt32Property>(Property))
 	{
-		int32 Val = ReadUint32(Bytes, Offset);
+		int32 Val = ReadUint32(ByteArrayView, Offset);
 		UInt32Prop->SetPropertyValue(ValuePtr, (uint32)Val);
 	}
 
 	// Float
 	else if (FFloatProperty* FloatProp = CastField<FFloatProperty>(Property))
 	{
-		float Val = ReadFloat(Bytes, Offset);
+		float Val = ReadFloat(ByteArrayView, Offset);
 		FloatProp->SetPropertyValue(ValuePtr, Val);
 	}
 
@@ -474,7 +472,7 @@ void UNetworkSerializationLib::ReadProperty(const TArray<uint8>&Bytes, int32 & O
 	else if (FBoolProperty* BoolProp = CastField<FBoolProperty>(Property))
 	{
 		// On lit l'octet, si != 0 c'est true
-		uint8 Val = ReadUint8(Bytes, Offset);
+		uint8 Val = ReadUint8(ByteArrayView, Offset);
 		BoolProp->SetPropertyValue(ValuePtr, Val != 0);
 	}
 
@@ -482,31 +480,31 @@ void UNetworkSerializationLib::ReadProperty(const TArray<uint8>&Bytes, int32 & O
 
 	else if (FStrProperty* StrProp = CastField<FStrProperty>(Property))
 	{
-		FString Val = ReadString(Bytes, Offset);
+		FString Val = ReadString(ByteArrayView, Offset);
 		StrProp->SetPropertyValue(ValuePtr, Val);
 	}
 
-	// --- 3. STRUCTS IMBRIQUÉES (Récursion !) ---
+	// --- 3. STRUCTS IMBRIQUï¿½ES (Rï¿½cursion !) ---
 
 	else if (FStructProperty* StructProp = CastField<FStructProperty>(Property))
 	{
 		// Optimisation Vector
 		if (StructProp->Struct->GetFName() == NAME_Vector)
 		{
-			FVector Val = ReadVector(Bytes, Offset);
+			FVector Val = ReadVector(ByteArrayView, Offset);
 			// On cast le pointeur void* directement en FVector* pour l'assigner
 			*(FVector*)ValuePtr = Val;
 		}
 		// Optimisation Rotator
 		else if (StructProp->Struct->GetFName() == NAME_Rotator)
 		{
-			FRotator Val = ReadRotator(Bytes, Offset);
+			FRotator Val = ReadRotator(ByteArrayView, Offset);
 			*(FRotator*)ValuePtr = Val;
 		}
 		else
 		{
-			// Sinon récursion standard vers la fonction qui itère sur les champs
-			ReadStructViaReflection(Bytes, Offset, StructProp->Struct, ValuePtr);
+			// Sinon rï¿½cursion standard vers la fonction qui itï¿½re sur les champs
+			ReadStructViaReflection(ByteArrayView, Offset, StructProp->Struct, ValuePtr);
 		}
 	}
 
@@ -516,16 +514,16 @@ void UNetworkSerializationLib::ReadProperty(const TArray<uint8>&Bytes, int32 & O
 		FScriptArrayHelper Helper(ArrayProp, ValuePtr);
 
 		// 1. Lire la taille
-		int32 ArraySize = ReadInt32(Bytes, Offset);
+		int32 ArraySize = ReadInt32(ByteArrayView, Offset);
 
-		// 2. Redimensionner le tableau pour accueillir les données
+		// 2. Redimensionner le tableau pour accueillir les donnï¿½es
 		Helper.Resize(ArraySize);
 
-		// 3. Remplir chaque élément
+		// 3. Remplir chaque ï¿½lï¿½ment
 		for (int32 i = 0; i < ArraySize; ++i)
 		{
-			// Appel récursif sur la propriété interne (Inner) pour l'élément i
-			ReadProperty(Bytes, Offset, ArrayProp->Inner, Helper.GetRawPtr(i));
+			// Appel rï¿½cursif sur la propriï¿½tï¿½ interne (Inner) pour l'ï¿½lï¿½ment i
+			ReadProperty(ByteArrayView, Offset, ArrayProp->Inner, Helper.GetRawPtr(i));
 		}
 	}
 }

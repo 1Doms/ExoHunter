@@ -3,6 +3,7 @@
 
 #include "UNet6BaseSubsystem.h"
 #include <enet6/enet.h>
+#include "Tickable.h"
 
 int32 UNet6BaseSubsystem::ENetInitCount = 0;
 
@@ -19,23 +20,23 @@ void UNet6BaseSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		}
 		UE_LOG(LogTemp, Log, TEXT("[ENetBase] ENet Library Initialized successfully."));
 	}
-// On incrémente le compteur (ex: 1 pour le Server, puis 2 quand le Client arrive)
+// On incrï¿½mente le compteur (ex: 1 pour le Server, puis 2 quand le Client arrive)
 	ENetInitCount++;
 }
 
 void UNet6BaseSubsystem::Deinitialize()
 {
-	// On décrémente le compteur quand un subsystem est détruit
+	// On dï¿½crï¿½mente le compteur quand un subsystem est dï¿½truit
 	ENetInitCount--;
 
-	// Si le compteur retombe à 0 (ou moins par sécurité), plus personne n'utilise ENet.
-	// On peut donc éteindre la librairie proprement.
+	// Si le compteur retombe ï¿½ 0 (ou moins par sï¿½curitï¿½), plus personne n'utilise ENet.
+	// On peut donc ï¿½teindre la librairie proprement.
 	if (ENetInitCount <= 0)
 	{
 		enet_deinitialize();
 		UE_LOG(LogTemp, Log, TEXT("[ENetBase] ENet Library Deinitialized."));
 
-		// Reset propre à 0
+		// Reset propre ï¿½ 0
 		ENetInitCount = 0;
 	}
 
@@ -44,18 +45,4 @@ void UNet6BaseSubsystem::Deinitialize()
 
 void UNet6BaseSubsystem::Tick(float DeltaTime)
 {
-}
-
-TArray<uint8> UNet6BaseSubsystem::ConsumePacket(ENetPacket* Packet)
-{
-	TArray<uint8> Data;
-
-	if (Packet && Packet->data && Packet->dataLength > 0)
-	{
-		Data.AddUninitialized(Packet->dataLength);
-		FMemory::Memcpy(Data.GetData(), Packet->data, Packet->dataLength);
-
-		enet_packet_destroy(Packet);
-	}
-	return Data;
 }
