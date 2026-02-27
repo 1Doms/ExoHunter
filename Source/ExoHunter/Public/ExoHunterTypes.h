@@ -74,14 +74,30 @@ struct FConnectedClient
 	GENERATED_BODY()
 
 	ENetPeer* Peer = nullptr;
-	uint32 InternalID = 0;
+
+	// --- LES INFOS RÉSEAU ---
+	UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Client")
+	int32 InternalID = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Client")
 	EExoPlayerStatus Status = EExoPlayerStatus::Connecting;
 
-	// TODO FUTUR : Ajouter ici le "Ping" lissé (AverageRTT)
-	// uint32 Ping = 0;
+	UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Client")
+	int32 Ping = 0;
 
-	// TODO FUTUR : Ajouter le Timestamp du dernier paquet reçu (pour détecter les Timeouts nous-mêmes si besoin)
-	// double LastPacketTime = 0.0f;
+	// --- LE "PLAYER STATE" (Les Stats) ---
+	UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Client")
+	FString PlayerName = "Unknown";
+
+	UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Client")
+	int32 TotalDamageDealt = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Client")
+	int32 TotalShiedBreak = 0;
+
+	// --- LE "PAWN" ---
+	UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Client")
+	AActor* ControlledActor = nullptr; 
 };
 
 USTRUCT(BlueprintType)
@@ -89,6 +105,12 @@ struct FServerInfo
 {
 	GENERATED_BODY()
 	
-	uint8 MaxPeerCount = 0;
-	TMap<uint32, FConnectedClient> ConnectedClient;
+	UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Server")
+	int32 MaxPeerCount = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Server")
+	int32 ConnectedPeers = 0;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "ExoNetwork|Server")
+	TMap<int32, FConnectedClient> ConnectedClients;
 };

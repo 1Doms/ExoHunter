@@ -1,9 +1,13 @@
 #include "UNetworkSerializationLib.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Serialization/MemoryWriter.h"
+#include "Serialization/MemoryReader.h"
+#include "UObject/Class.h"
 
 // ==============================================================================
 //                                HELPERS PRIV�S
 // ==============================================================================
-
+/*
 // Helper g�n�rique pour ajouter une donn�e � la FIN du tableau
 template <typename T>
 void WriteAppend(TArray<uint8>& byteArray, const T& Value)
@@ -526,4 +530,36 @@ void UNetworkSerializationLib::ReadProperty(TArrayView<const uint8> ByteArrayVie
 			ReadProperty(ByteArrayView, Offset, ArrayProp->Inner, Helper.GetRawPtr(i));
 		}
 	}
+}*/
+
+void UNetworkSerializationLib::WriteStructViaReflection(TArray<uint8>& Bytes, UScriptStruct* StructDefinition, const void* StructData)
+{
+	TArray<uint8> StructDataBytes;
+	FMemoryWriter MemoryWriter(StructDataBytes);
+	FArchive& Ar = MemoryWriter;
+	
+	for (TFieldIterator<FProperty> It(StructDefinition); It; ++It)
+	{
+		FProperty* Property = *It;
+		void* ValuePtr = Property->ContainerPtrToValuePtr<void>(const_cast<void*>(StructData));
+		Property->NetSerializeItem(Ar, nullptr, ValuePtr);
+	}
+
+	Bytes.Append(StructDataBytes);
+}
+
+void UNetworkSerializationLib::ReadStructViaReflection(TArrayView<const uint8> Bytes, int32& Offset, UScriptStruct* StructDefinition, void* StructData)
+{
+	TArray<uint8> TempArray(Bytes.GetData() + Offset, Bytes.Num() - Offset);
+	FMemoryReader MemoryReader(TempArray);
+	FArchive& Ar = MemoryReader;
+
+	for (TFieldIterator<FProperty> It(StructDefinition); It; ++It)
+	{
+		FProperty* Property = *It;
+		void* ValuePtr = Property->ContainerPtrToValuePtr<void>(StructData);
+		Property->NetSerializeItem(Ar, nullptr, ValuePtr);
+	}
+
+	Offset += MemoryReader.Tell();
 }

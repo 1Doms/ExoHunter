@@ -27,24 +27,23 @@ public:
 	static void HandleStruct(AExoHunterGameMode* GM, uint32 PlayerID, const FClientConnectStruct& Struct);
 	static void HandleStruct(AExoHunterGameMode* GM, uint32 PlayerID, const FClientDisconnectStruct& Struct);
 	static void HandleStruct(AExoHunterGameMode* GM, uint32 PlayerID, const FClientInputStruct& Struct);
-	static void HandleStruct(AExoHunterGameMode* GM, uint32 PlayerID, const FClientTest& Struct);
 
 	// --- CLIENT : Gère les messages envoyés par le serveur ---
 	static void HandleStruct(AExoHunterGameState* GS, const FServerClientConnectingStruct& Struct);
 	static void HandleStruct(AExoHunterGameState* GS, const FServerPlayerJoinStruct& Struct);
 	static void HandleStruct(AExoHunterGameState* GS, const FServerSpawnActorStruct& Struct);
-	static void HandleStruct(AExoHunterGameState* GS, const FServerTest& Struct);
 	
 	// Sécurité pour le SERVER (3 Parameters)
 	template<typename T>
-	static void HandleStruct(UWorld*, uint32 PlayerID, const T&)
+	static void HandleStruct(AExoHunterGameMode* GM, uint32 PlayerID, const T&)
 	{
 		FString StructName = T::StaticStruct()->GetName();
 		UE_LOG(LogTemp, Error, TEXT("SERVEUR : HandleStruct manquant pour le joueur %d avec le paquet [%s] !"), PlayerID, *StructName);
 	}
+	
 	// Sécurité pour le CLIENT (2 Parameters)
 	template<typename T>
-	static void HandleStruct(UWorld*, const T&)
+	static void HandleStruct(AExoHunterGameState* GS, const T&)
 	{
 		FString StructName = T::StaticStruct()->GetName();
 		UE_LOG(LogTemp, Error, TEXT("CLIENT : HandleStruct manquant pour le paquet [%s] !"), *StructName);

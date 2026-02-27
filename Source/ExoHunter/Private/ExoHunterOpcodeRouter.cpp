@@ -20,7 +20,6 @@ void ExoHunterOpcodeRouter::RouteClientMessage(UWorld* World, uint32 PlayerID, c
 		DispatchTable.Add(EExoHunterOpcode::C_Connect, BindClientHandler<FClientConnectStruct>());
 		DispatchTable.Add(EExoHunterOpcode::C_Disconnect, BindClientHandler<FClientDisconnectStruct>());
 		DispatchTable.Add(EExoHunterOpcode::C_Input, BindClientHandler<FClientInputStruct>());
-		DispatchTable.Add(EExoHunterOpcode::C_Test , BindClientHandler<FClientTest>());
 	}
 	
 	// Si DispatchTable contient l'Opcode éxécute la lambda
@@ -47,7 +46,6 @@ void ExoHunterOpcodeRouter::RouteServerMessage(UWorld* World, const ENetPacket* 
 		DispatchTable.Add(EExoHunterOpcode::S_ClientConnecting, BindServerHandler<FServerClientConnectingStruct>());
 		DispatchTable.Add(EExoHunterOpcode::S_PlayerJoin, BindServerHandler<FServerPlayerJoinStruct>());
 		DispatchTable.Add(EExoHunterOpcode::S_SpawnActor, BindServerHandler<FServerSpawnActorStruct>());
-		DispatchTable.Add(EExoHunterOpcode::S_Test , BindServerHandler<FServerTest>());
 	}
 
 	// 2. L'exécution

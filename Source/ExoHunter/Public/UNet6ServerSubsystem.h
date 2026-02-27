@@ -46,7 +46,7 @@ public:
 	void BP_OnClientDisconnectEvent(int32 ClientID);
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
-	void BP_OnReceivePacketEvent(int32 ClientID);
+	void BP_OnReceivePacketEvent(int32 ClientID,int32 packetLength);
 	
 	// --- ENVOIE AU JOUEUR CONCERNE
 	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Server", meta = (BaseStruct = "ExoServerPacket"))
@@ -55,6 +55,12 @@ public:
 	// --- ENVOI A TOUT LE MONDE ---
 	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Server", meta = (BaseStruct = "ExoServerPacket"))
 	void SendToAllPlayers(const FInstancedStruct& PacketData, bool bReliable = true);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ExoNetwork|Server")
+	FServerInfo GetServerInfo() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "ExoNetwork|Server")
+	bool GetClientInfo(int32 PlayerID, FConnectedClient& OutClient) const;
 
 protected:
 	virtual void Tick(float DeltaTime) override;

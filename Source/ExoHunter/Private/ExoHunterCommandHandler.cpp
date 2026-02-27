@@ -41,17 +41,13 @@ void ExoHunterCommandHandler::HandleStruct(AExoHunterGameMode* GM, uint32 Player
 	//Ici ca va être ma logique de calcul etc on dirait que CommandHandler ne sert à rien, car j'ai pas eu le temps de l'utiliser ;'(
 }
 
-void ExoHunterCommandHandler::HandleStruct(AExoHunterGameMode* GM, uint32 PlayerID, const FClientTest& Struct)
-{
-	
-}
-
 // =============================================================================
 // CLIENT : Gère les messages envoyés par le serveur
 // =============================================================================
 
 void ExoHunterCommandHandler::HandleStruct(AExoHunterGameState* GS, const FServerClientConnectingStruct& Struct)
 {
+	UE_LOG(LogTemp, Warning, TEXT("C++ CLIENT : Ordre S_ClientConnecting reçu ! NetID: %d, Status: %d"), Struct.NetID, Struct.PlayerStatus);
 	GS->BP_OnClientConnecting(Struct);
 }
 

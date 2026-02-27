@@ -13,7 +13,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f7ae0886-edde-4faf-a274-8f0abdeb0a2a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.ExoHunter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ExoHunter/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Characters/BP_CharacterBase.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/Characters/BP_CharacterBase.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GameInstances/BP_ClientSubsystem.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/GameInstances/BP_ClientSubsystem.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GameInstances/BP_ServerSubsystem.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/GameInstances/BP_ServerSubsystem.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GameModeState/BP_ExoHunterGameState.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/Blueprints/GameModeState/BP_ExoHunterGameState.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Physics.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Physics.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_PhysicsAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_PhysicsAsset.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Skeleton.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Skeleton.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_ExoHunterGameMode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_ExoHunterGameMode.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_FirstPersonCharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_FirstPersonCharacter.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_PickUp_Rifle.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_PickUp_Rifle.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Maps/FirstPersonMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Maps/FirstPersonMap.umap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Private/ExoHunterCommandHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Private/ExoHunterCommandHandler.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Private/ExoHunterOpcodeRouter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Private/ExoHunterOpcodeRouter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Private/PacketBuilder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Private/PacketBuilder.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Private/UNet6ClientSubsystem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Private/UNet6ClientSubsystem.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Private/UNet6ServerSubsystem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Private/UNet6ServerSubsystem.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Private/UNetworkSerializationLib.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Private/UNetworkSerializationLib.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Public/ExoHunterCommandHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Public/ExoHunterCommandHandler.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Public/ExoHunterOpcodeRouter.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Public/ExoHunterOpcodeRouter.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Public/ExoHunterTypes.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Public/ExoHunterTypes.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Public/UNet6ClientSubsystem.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Public/UNet6ClientSubsystem.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Public/UNet6ServerSubsystem.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Public/UNet6ServerSubsystem.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Public/UNetworkSerializationLib.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/Public/UNetworkSerializationLib.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,8 +50,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Source/ExoHunter/Private/AExoHunterGameStateBase.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Source/ExoHunter/Public/AExoHunterGameStateBase.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../../../../../Program Files/Epic Games/UE_5.4/Engine/Source/Runtime/CoreUObject/Public/UObject/Class.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/ThirdParty/ENet6/include/enet6/enet.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Source/ThirdParty/ENet6/include/enet6/win32.h" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -53,7 +75,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev/networkproto&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -183,6 +205,15 @@
       <workItem from="1771795714935" duration="3000" />
       <workItem from="1771797401180" duration="2686000" />
       <workItem from="1771802447595" duration="38000" />
+      <workItem from="1771954561335" duration="1550000" />
+      <workItem from="1772124417342" duration="1312000" />
+      <workItem from="1772125769371" duration="296000" />
+      <workItem from="1772126088299" duration="34000" />
+      <workItem from="1772126232573" duration="4000" />
+      <workItem from="1772126424510" duration="1055000" />
+      <workItem from="1772189029535" duration="4135000" />
+      <workItem from="1772194234903" duration="9000" />
+      <workItem from="1772195184510" duration="8272000" />
     </task>
     <servers />
   </component>

@@ -26,7 +26,7 @@ ENetPacket* FPacketBuilder::BuildPacket(const FInstancedStruct& PacketData, bool
 	UNetworkSerializationLib::WriteUint8(ByteArray, static_cast<uint8>(Opcode));
 
 	// 3. SÉRIALISATION BLUEPRINT (Ignorera l'Opcode car pas de UPROPERTY)
-	UNetworkSerializationLib::WriteStructViaReflection(ByteArray, StructType, Memory);
+	UNetworkSerializationLib::WriteStructViaReflection(ByteArray, const_cast<UScriptStruct*>(StructType), Memory);
 
 	return CreateENetPacketInternal(ByteArray.GetData(), ByteArray.Num(), bReliable);
 }

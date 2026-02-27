@@ -30,7 +30,7 @@ private:
 			int32 Offset = 0;
 			TStruct PacketStruct;
 			UNetworkSerializationLib::ReadStruct(Payload, Offset, PacketStruct);
-			ExoHunterCommandHandler::HandleStruct(World, PlayerID, PacketStruct);
+			ExoHunterCommandHandler::HandleStruct(GM, PlayerID, PacketStruct);
 		};
 	}
 
@@ -40,10 +40,13 @@ private:
 	{
 		return [](UWorld* World, TArrayView<const uint8>& Payload) 
 		{
+			AExoHunterGameState* GS = ExoHunterCommandHandler::GetExoGameState(World);
+			if (!GS) return;
+			
 			int32 Offset = 0;
 			TStruct PacketStruct;
 			UNetworkSerializationLib::ReadStruct(Payload, Offset, PacketStruct);
-			ExoHunterCommandHandler::HandleStruct(World, PacketStruct);
+			ExoHunterCommandHandler::HandleStruct(GS, PacketStruct);
 		};
 	}
 };

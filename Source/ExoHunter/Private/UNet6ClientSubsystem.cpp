@@ -136,8 +136,8 @@ void UNet6ClientSubsystem::Tick(float DeltaTime)
 void UNet6ClientSubsystem::HandleReceivePacket(const ENetPacket* Packet)
 {
 	if (!Packet) return;
-	BP_OnReceivePacketEvent();
 	ExoHunterOpcodeRouter::RouteServerMessage(GetWorld(), Packet);
+	BP_OnReceivePacketEvent(Packet->dataLength);
 	// Nettoyage
 	enet_packet_destroy(const_cast<ENetPacket*>(Packet));
 }

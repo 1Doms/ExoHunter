@@ -40,7 +40,7 @@ public:
 	void BP_OnDisconnectEvent();
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "ExoNetwork|Server")
-	void BP_OnReceivePacketEvent();
+	void BP_OnReceivePacketEvent(int32 packetLength);
 	
 	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Client", meta = (BaseStruct = "ExoClientPacket"))
 	void SendToServer(const FInstancedStruct& PacketData, bool bReliable = true);

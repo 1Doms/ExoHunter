@@ -91,6 +91,39 @@ void UNet6ServerSubsystem::SendToAllPlayers(const FInstancedStruct& PacketData, 
 	InternalSendToAll(ENetPacket);
 }
 
+FServerInfo UNet6ServerSubsystem::GetServerInfo() const
+{
+	FServerInfo Info;
+	
+	// 1. On récupère le nombre max de joueurs
+	if (ServerHost) 
+	{
+		Info.MaxPeerCount = ServerHost->peerCount;
+		Info.ConnectedPeers = ServerHost->connectedPeers;
+	}
+
+	// 2. On copie notre map interne C++ vers la map Blueprint
+	for (const auto& Pair : ConnectedClients)
+	{
+		// On cast la clé uint32 en int32 pour que le Blueprint soit content
+		Info.ConnectedClients.Add((int32)Pair.Key, Pair.Value);
+	}
+
+	return Info;
+}
+
+bool UNet6ServerSubsystem::GetClientInfo(int32 PlayerID, FConnectedClient& OutClient) const
+{
+	// On cherche directement dans notre Map C++ avec l'ID
+	if (const FConnectedClient* FoundClient = ConnectedClients.Find((uint32)PlayerID))
+	{
+		OutClient = *FoundClient; // On copie les infos pour le Blueprint
+		return true; // Le joueur existe bien !
+	}
+	
+	return false; // Le joueur n'existe pas ou s'est déconnecté
+}
+
 void UNet6ServerSubsystem::Tick(float DeltaTime)
 {
 	if (!ServerHost) return;
@@ -172,11 +205,11 @@ void UNet6ServerSubsystem::HandleReceivePacket(ENetPeer* Peer, const ENetPacket*
 	if (!Peer || !Packet) return;
 	// 1. On récupère l'ID du joueur qui a envoyé le message
 	uint32 PlayerID = (uint32)(uintptr_t)Peer->data;
-	BP_OnReceivePacketEvent(PlayerID);
 	
 	// 3. On passe cette fenêtre au routeur
 	ExoHunterOpcodeRouter::RouteClientMessage(GetWorld(), PlayerID, Packet);
-
+	BP_OnReceivePacketEvent(PlayerID, Packet->dataLength);
+	
 	// 4. Le routeur a terminé, on peut nettoyer la mémoire d'ENet.
 	// (Le const_cast est nécessaire car on met "const ENetPacket*" dans ton .h, 
 	// mais ENet a besoin d'un pointeur modifiable pour le détruire).

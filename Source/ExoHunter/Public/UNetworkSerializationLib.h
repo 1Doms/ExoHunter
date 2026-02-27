@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
 #include "UnetworkSerializationLib.generated.h"
 
 /**
@@ -13,7 +12,7 @@
  * - Les FRotator sont convertis en Float (ou Short compress� dans une version future).
  */
 
-UCLASS()
+/*UCLASS()
 class EXOHUNTER_API UNetworkSerializationLib : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
@@ -132,4 +131,38 @@ public:
 
 	// Le Switch Case variable type
 	static void ReadProperty(TArrayView<const uint8> Bytes, int32& Offset, FProperty* Property, void* ValuePtr);
+};*/
+
+UCLASS()
+class EXOHUNTER_API UNetworkSerializationLib : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	// --- Helper pour écrire l'Opcode au tout début ---
+	UFUNCTION(BlueprintCallable, Category = "ExoNetwork|Write")
+	static void WriteUint8(UPARAM(ref) TArray<uint8>& byteArray, uint8 Value)
+	{
+		byteArray.Add(Value);
+	}
+
+	// --- Les seules fonctions dont on a besoin maintenant ! ---
+	
+	template <typename T>
+	static void WriteStruct(TArray<uint8>& Bytes, const T& StructObj)
+	{
+		WriteStructViaReflection(Bytes, T::StaticStruct(), &StructObj);
+	}
+
+	static void WriteStructViaReflection(TArray<uint8>& Bytes, UScriptStruct* StructDefinition, const void* StructData);
+
+	template <typename T>
+	static void ReadStruct(TArrayView<const uint8> Bytes, int32& Offset, T& OutStruct)
+	{
+		UScriptStruct* StructPtr = T::StaticStruct();
+		ReadStructViaReflection(Bytes, Offset, StructPtr, static_cast<void*>(&OutStruct));
+	}
+
+	static void ReadStructViaReflection(TArrayView<const uint8> Bytes, int32& Offset, UScriptStruct* StructDefinition, void* StructData);
 };
