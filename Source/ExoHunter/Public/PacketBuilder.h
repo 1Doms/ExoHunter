@@ -40,16 +40,6 @@ struct FClientDisconnectStruct : public FExoClientPacket
 {
     GENERATED_BODY()
     FClientDisconnectStruct() : FExoClientPacket(EExoHunterOpcode::C_Disconnect) {}
-
-    UPROPERTY(BlueprintReadWrite)
-    uint8 NetID;
-};
-
-USTRUCT(BlueprintType)
-struct FClientTest : public FExoClientPacket
-{
-    GENERATED_BODY()
-    FClientTest() : FExoClientPacket(EExoHunterOpcode::C_Test) {}
 };
 
 USTRUCT(BlueprintType)
@@ -58,7 +48,19 @@ struct FClientInputStruct : public FExoClientPacket
     GENERATED_BODY()
     FClientInputStruct() : FExoClientPacket(EExoHunterOpcode::C_Input) {}
     
-    uint32 NetID;
+    uint32 SequenceNumber = 0;
+    
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Input")
+    float InputDeltaTime = 0.0f;
+    
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Input")
+    int32 CompressedInputs = 0;
+    
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Input")
+    float CameraPitch = 0.0f; // Regarder en haut/bas
+
+    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Input")
+    float CameraYaw = 0.0f;   // Tourner à gauche/droite
 };
 
 // --- SERVER PACKETS ---
@@ -107,16 +109,6 @@ struct FServerSpawnActorStruct : public FExoServerPacket
     // Sa rotation de départ
     UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
     FRotator Rotation;
-};
-
-USTRUCT(BlueprintType)
-struct FServerTest : public FExoServerPacket
-{
-    GENERATED_BODY()
-    FServerTest() : FExoServerPacket(EExoHunterOpcode::S_Test) {}
-    
-    UPROPERTY(BlueprintReadWrite, Category = "ExoNetwork|Struct")
-    int32 NetID;
 };
 
 struct _ENetPacket;
