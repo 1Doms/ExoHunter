@@ -11,30 +11,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c52e259a-9fdf-4728-8e43-0ed87be7a77b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Source/ExoHunter/Private/UBaseSubsystem.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Source/ExoHunter/Public/UBaseSubsystem.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ExoHunter.dir/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ExoHunter.dir/.idea/indexLayout.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.ExoHunter.dir/.idea/vcs.xml" beforeDir="false" />
+    <list default="true" id="a9930591-74ba-4060-8fa9-b8d531cc0436" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.ExoHunter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ExoHunter/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Config/DefaultEngine.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEngine.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/Characters/BP_CharacterBase.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GameInstances/BP_ClientSubsystem.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GameInstances/BP_ServerSubsystem.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GameModeState/BP_ExoHunterGameMode.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/Blueprints/GameModeState/BP_ExoHunterGameState.uasset" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Physics.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Physics.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_PhysicsAsset.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_PhysicsAsset.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Skeleton.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FPWeapon/Mesh/SK_FPGun_Skeleton.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_ExoHunterGameMode.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_ExoHunterGameMode.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_FirstPersonCharacter.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_FirstPersonCharacter.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_FirstPersonPlayerController.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_FirstPersonPlayerController.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_PickUp_Rifle.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Blueprints/BP_PickUp_Rifle.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/FirstPerson/Maps/FirstPersonMap.umap" beforeDir="false" afterPath="$PROJECT_DIR$/Content/FirstPerson/Maps/FirstPersonMap.umap" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/WidgetBlueprints/WBP_MainMenu.uasset" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/ExoHunterPlayerController.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/ExoHunterPlayerController.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/ExoHunterPlayerController.h" beforeDir="false" afterPath="$PROJECT_DIR$/Source/ExoHunter/ExoHunterPlayerController.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/_ExoHunter/Blueprints/GameModeState/BP_ExoHunterGameState.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/_ExoHunter/Blueprints/GameModeState/BP_ExoHunterGameState.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/_ExoHunter/Blueprints/Subsystems/BP_EventBusSubsystem.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/_ExoHunter/Blueprints/Subsystems/BP_UserInterfaceSubsystem.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/_ExoHunter/WidgetBlueprints/Molecules/WBP_Button.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/_ExoHunter/WidgetBlueprints/Molecules/WBP_Button.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/_ExoHunter/WidgetBlueprints/Pages/WBP_MainMenu.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/_ExoHunter/WidgetBlueprints/Pages/WBP_MainMenu.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Private/UBaseSubsystem.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Source/ExoHunter/Public/UBaseSubsystem.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,12 +37,14 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="cidr-memory-view://0" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/ExoHunter/Private/BaseWorldSubsystem.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Source/ExoHunter/Public/BaseWorldSubsystem.h" root0="FORCE_HIGHLIGHTING" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 7
-}</component>
-  <component name="ProjectId" id="3AUFcH7LiE4rUPmhvrNu8QX0BXx" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="3AUoXYt5SryxRTtzabRhztox5Zt" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -61,17 +52,14 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "dev/networkproto",
-    "ignore.virus.scanning.warn.message": "true",
+    "git-widget-placeholder": "dev/GameplayProto",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "UnrealLinkOptionsId",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -163,22 +151,18 @@
       <method v="2" />
     </configuration>
     <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
-      <deployment type="dockerfile">
-        <settings />
-      </deployment>
-      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
+      <deployment type="dockerfile" />
       <method v="2" />
     </configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="c52e259a-9fdf-4728-8e43-0ed87be7a77b" name="Changes" comment="" />
-      <created>1772639320327</created>
+      <changelist id="a9930591-74ba-4060-8fa9-b8d531cc0436" name="Changes" comment="" />
+      <created>1772656558266</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1772639320327</updated>
-      <workItem from="1772639321524" duration="346000" />
-      <workItem from="1772639702560" duration="6938000" />
+      <updated>1772656558266</updated>
+      <workItem from="1772656558267" duration="598000" />
     </task>
     <servers />
   </component>
@@ -206,9 +190,5 @@
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>
-  </component>
-  <component name="XSLT-Support.FileAssociations.UIState">
-    <expand />
-    <select />
   </component>
 </project>
