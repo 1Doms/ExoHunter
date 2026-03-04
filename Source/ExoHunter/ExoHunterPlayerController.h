@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "PacketBuilder.h"
 #include "GameFramework/PlayerController.h"
+#include "InputActionValue.h"
 #include "ExoHunterPlayerController.generated.h"
 
 class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class EXOHUNTER_API AExoHunterPlayerController : public APlayerController
